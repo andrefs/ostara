@@ -1,11 +1,12 @@
 @builtin "number.ne"     # `int`, `decimal`, and `percentage` number primitives
 @builtin "string.ne"
 
-lines      -> (field | comment) ( _ "\n" lines):*
+lines      -> (field | comment | command) ( _ "\n" lines):*
 field      -> fieldName ( _ ":" _ fieldType):? ( _ internal):? (_ quantifier):?
 fieldType  -> number | string | boolean | date | url | range | enum
 quantifier -> "?" | "!" | "*"
 fieldName  -> identifier
+command    -> "@" identifier _ (string | identifier):?
 
 
 
