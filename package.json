@@ -1,0 +1,11 @@
+{
+  "name": "ostara",
+  "version": "0.0.1",
+  "description": "Parse schemas in a simple DSL to Mongoose models or JSON objects",
+  "main": "index.js",
+  "author": "André Santos",
+  "license": "MIT",
+  "dependencies": {
+    "nearley": "^2.9.2"
+  }
+}
