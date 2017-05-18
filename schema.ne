@@ -2,16 +2,18 @@
 @builtin "string.ne"
 
 
-model            -> rules                       {% b => b[0] %}
-rules            -> rule ( _ nls rules):* nl:?  {% r => r[0] %}
-rule             -> field                       {% r => r[0] %}
+model            -> rules                       {% fst %}
+rules            -> rule                        {% fst %}
+                  | rules nls rule              {% d => { return Object.assign({},d[0],d[2]); } %}
+rule             -> null
+                  | field                       {% fst %}
                   | comment
                   | command
-field            -> _ fieldName fieldMetas:* {% f => { return {[f[1]]: Object.assign({},f[2][0], f[2][1])}; } %}
-fieldMetas       -> _ fieldMeta   {% r => r[1] %}
-fieldMeta        -> ":" fieldType {% q => q[1] %}
-                  | isInternal
-                  | fieldQuantifier {% s => s[0] %}
+field            -> _ fieldName fieldMetas:* {% f => { return {[f[1]]: Object.assign({}, ...f[2])}; } %}
+fieldMetas       -> _ fieldMeta     {% snd %}
+fieldMeta        -> ":" fieldType   {% snd %}
+                  | isInternal      {% fst %}
+                  | fieldQuantifier {% fst %}
 fieldType        -> (integer
                   | float
                   | string
@@ -26,36 +28,36 @@ fieldQuantifier  -> "?" {% _ => { return {"#isRequired": false                  
                   | "!" {% _ => { return {"#isForbidden": true                  }; } %}
                   | "*" {% _ => { return {"#isArray": true, "#isRequired": false}; } %}
                   | "+" {% _ => { return {"#isArray": true                      }; } %}
-fieldName        -> identifier {% l => l[0] %}
+fieldName        -> identifier {% fst %}
 command          -> "@" identifier _ (string | identifier):?
 
 
 
 
 
-integer             -> "integer"  ( _ integerDefaultValue {% k => k[1] %}):? {% i => { return Object.assign({"#type":"integer"}, i[1]); } %}
-integerDefaultValue ->  valueSign _ int {% v => { return {"#default": v[2]}; } %}
+integer             -> "integer"  ( _ integerDefaultValue {% snd %}):? {% fieldType %}
+integerDefaultValue ->  valueSign int {% defaultValue %}
 
-float               -> "float"  ( _ floatDefaultValue ):? {% t => t[1] %}
-floatDefaultValue   ->  valueSign _ decimal {% f => { return {'#default': f[2]}; } %}
+float               -> "float"  ( _ floatDefaultValue {% snd %}):? {% fieldType %}
+floatDefaultValue   ->  valueSign decimal {% defaultValue %}
 
-string              -> "string" ( _ stringDefaultValue ):?
-stringDefaultValue  -> valueSign _ string
+string              -> "string" ( _ stringDefaultValue {% snd %}):? {% fieldType %}
+stringDefaultValue  -> valueSign string {% defaultValue %}
 
-boolean             -> "boolean" ( _ booleanDefaultValue):?
-booleanDefaultValue -> valueSign _ ( "false" | "true" )
+boolean             -> "boolean" ( _ booleanDefaultValue {% snd %}):? {% fieldType %}
+booleanDefaultValue -> valueSign ( "false" | "true" )
 
 date                -> "date" ( _ valueSign _ "NOW"):?
-dateDefaultValue    -> valueSign _ "NOW"
+dateDefaultValue    -> valueSign "NOW"
 
 url                 -> "url" ( _ urlDefaultValue ):?
-urlDefaultValue     -> valueSign _ urlFunction "(" identifier ")"
+urlDefaultValue     -> valueSign urlFunction "(" identifier ")"
 urlFunction         -> "URLDOMAIN" | "URLTLD"
 
 range               -> "range(" _ int ".." int _ ")" ( _ integerDefaultValue ):?
 
 enum                -> "enum(" _ identifier ("," _ identifier):+ _ ")" ( _ enumDefaultValue ):?
-enumDefaultValue    -> valueSign identifier
+enumDefaultValue    -> valueSign identifier {% defaultValue %}
 
 object              -> "object" {% _ => { return {"#type": "object"}; } %}
 
@@ -69,3 +71,23 @@ wschar              -> [ \t] {% id %}
 nls                 -> nl:+ {% function(d) {return null;} %}
 nl                  -> "\n" {% function(d) {return null;} %}
 
+
+@{%
+
+  function defaultValue(d){
+    return {"#default": d[1]};
+  }
+
+  function fst(d){
+    return d[0];
+  }
+
+  function snd(d){
+    return d[1];
+  }
+
+  function fieldType(d){
+    return Object.assign({"#type":d[0]}, d[1]);
+  }
+
+%}

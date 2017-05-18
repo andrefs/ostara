@@ -2,6 +2,24 @@
 // http://github.com/Hardmath123/nearley
 (function () {
 function id(x) {return x[0]; }
+
+
+  function defaultValue(d){
+    return {"#default": d[1]};
+  }
+
+  function fst(d){
+    return d[0];
+  }
+
+  function snd(d){
+    return d[1];
+  }
+
+  function fieldType(d){
+    return Object.assign({"#type":d[0]}, d[1]);
+  }
+
 var grammar = {
     Lexer: undefined,
     ParserRules: [
@@ -116,23 +134,20 @@ var grammar = {
             return d.join("");
         }
         },
-    {"name": "model", "symbols": ["rules"], "postprocess": b => b[0]},
-    {"name": "rules$ebnf$1", "symbols": []},
-    {"name": "rules$ebnf$1$subexpression$1", "symbols": ["_", "nls", "rules"]},
-    {"name": "rules$ebnf$1", "symbols": ["rules$ebnf$1", "rules$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "rules$ebnf$2", "symbols": ["nl"], "postprocess": id},
-    {"name": "rules$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "rules", "symbols": ["rule", "rules$ebnf$1", "rules$ebnf$2"], "postprocess": r => r[0]},
-    {"name": "rule", "symbols": ["field"], "postprocess": r => r[0]},
+    {"name": "model", "symbols": ["rules"], "postprocess": fst},
+    {"name": "rules", "symbols": ["rule"], "postprocess": fst},
+    {"name": "rules", "symbols": ["rules", "nls", "rule"], "postprocess": d => { return Object.assign({},d[0],d[2]); }},
+    {"name": "rule", "symbols": []},
+    {"name": "rule", "symbols": ["field"], "postprocess": fst},
     {"name": "rule", "symbols": ["comment"]},
     {"name": "rule", "symbols": ["command"]},
     {"name": "field$ebnf$1", "symbols": []},
     {"name": "field$ebnf$1", "symbols": ["field$ebnf$1", "fieldMetas"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "field", "symbols": ["_", "fieldName", "field$ebnf$1"], "postprocess": f => { return {[f[1]]: Object.assign({},f[2][0], f[2][1])}; }},
-    {"name": "fieldMetas", "symbols": ["_", "fieldMeta"], "postprocess": r => r[1]},
-    {"name": "fieldMeta", "symbols": [{"literal":":"}, "fieldType"], "postprocess": q => q[1]},
-    {"name": "fieldMeta", "symbols": ["isInternal"]},
-    {"name": "fieldMeta", "symbols": ["fieldQuantifier"], "postprocess": s => s[0]},
+    {"name": "field", "symbols": ["_", "fieldName", "field$ebnf$1"], "postprocess": f => { return {[f[1]]: Object.assign({}, ...f[2])}; }},
+    {"name": "fieldMetas", "symbols": ["_", "fieldMeta"], "postprocess": snd},
+    {"name": "fieldMeta", "symbols": [{"literal":":"}, "fieldType"], "postprocess": snd},
+    {"name": "fieldMeta", "symbols": ["isInternal"], "postprocess": fst},
+    {"name": "fieldMeta", "symbols": ["fieldQuantifier"], "postprocess": fst},
     {"name": "fieldType$subexpression$1", "symbols": ["integer"]},
     {"name": "fieldType$subexpression$1", "symbols": ["float"]},
     {"name": "fieldType$subexpression$1", "symbols": ["string"]},
@@ -148,40 +163,40 @@ var grammar = {
     {"name": "fieldQuantifier", "symbols": [{"literal":"!"}], "postprocess": _ => { return {"#isForbidden": true                  }; }},
     {"name": "fieldQuantifier", "symbols": [{"literal":"*"}], "postprocess": _ => { return {"#isArray": true, "#isRequired": false}; }},
     {"name": "fieldQuantifier", "symbols": [{"literal":"+"}], "postprocess": _ => { return {"#isArray": true                      }; }},
-    {"name": "fieldName", "symbols": ["identifier"], "postprocess": l => l[0]},
+    {"name": "fieldName", "symbols": ["identifier"], "postprocess": fst},
     {"name": "command$ebnf$1$subexpression$1", "symbols": ["string"]},
     {"name": "command$ebnf$1$subexpression$1", "symbols": ["identifier"]},
     {"name": "command$ebnf$1", "symbols": ["command$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "command$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "command", "symbols": [{"literal":"@"}, "identifier", "_", "command$ebnf$1"]},
     {"name": "integer$string$1", "symbols": [{"literal":"i"}, {"literal":"n"}, {"literal":"t"}, {"literal":"e"}, {"literal":"g"}, {"literal":"e"}, {"literal":"r"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "integer$ebnf$1$subexpression$1", "symbols": ["_", "integerDefaultValue"], "postprocess": k => k[1]},
+    {"name": "integer$ebnf$1$subexpression$1", "symbols": ["_", "integerDefaultValue"], "postprocess": snd},
     {"name": "integer$ebnf$1", "symbols": ["integer$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "integer$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "integer", "symbols": ["integer$string$1", "integer$ebnf$1"], "postprocess": i => { return Object.assign({"#type":"integer"}, i[1]); }},
-    {"name": "integerDefaultValue", "symbols": ["valueSign", "_", "int"], "postprocess": v => { return {"#default": v[2]}; }},
+    {"name": "integer", "symbols": ["integer$string$1", "integer$ebnf$1"], "postprocess": fieldType},
+    {"name": "integerDefaultValue", "symbols": ["valueSign", "int"], "postprocess": defaultValue},
     {"name": "float$string$1", "symbols": [{"literal":"f"}, {"literal":"l"}, {"literal":"o"}, {"literal":"a"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "float$ebnf$1$subexpression$1", "symbols": ["_", "floatDefaultValue"]},
+    {"name": "float$ebnf$1$subexpression$1", "symbols": ["_", "floatDefaultValue"], "postprocess": snd},
     {"name": "float$ebnf$1", "symbols": ["float$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "float$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "float", "symbols": ["float$string$1", "float$ebnf$1"], "postprocess": t => t[1]},
-    {"name": "floatDefaultValue", "symbols": ["valueSign", "_", "decimal"], "postprocess": f => { return {'#default': f[2]}; }},
+    {"name": "float", "symbols": ["float$string$1", "float$ebnf$1"], "postprocess": fieldType},
+    {"name": "floatDefaultValue", "symbols": ["valueSign", "decimal"], "postprocess": defaultValue},
     {"name": "string$string$1", "symbols": [{"literal":"s"}, {"literal":"t"}, {"literal":"r"}, {"literal":"i"}, {"literal":"n"}, {"literal":"g"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "string$ebnf$1$subexpression$1", "symbols": ["_", "stringDefaultValue"]},
+    {"name": "string$ebnf$1$subexpression$1", "symbols": ["_", "stringDefaultValue"], "postprocess": snd},
     {"name": "string$ebnf$1", "symbols": ["string$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "string$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "string", "symbols": ["string$string$1", "string$ebnf$1"]},
-    {"name": "stringDefaultValue", "symbols": ["valueSign", "_", "string"]},
+    {"name": "string", "symbols": ["string$string$1", "string$ebnf$1"], "postprocess": fieldType},
+    {"name": "stringDefaultValue", "symbols": ["valueSign", "string"], "postprocess": defaultValue},
     {"name": "boolean$string$1", "symbols": [{"literal":"b"}, {"literal":"o"}, {"literal":"o"}, {"literal":"l"}, {"literal":"e"}, {"literal":"a"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "boolean$ebnf$1$subexpression$1", "symbols": ["_", "booleanDefaultValue"]},
+    {"name": "boolean$ebnf$1$subexpression$1", "symbols": ["_", "booleanDefaultValue"], "postprocess": snd},
     {"name": "boolean$ebnf$1", "symbols": ["boolean$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "boolean$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "boolean", "symbols": ["boolean$string$1", "boolean$ebnf$1"]},
+    {"name": "boolean", "symbols": ["boolean$string$1", "boolean$ebnf$1"], "postprocess": fieldType},
     {"name": "booleanDefaultValue$subexpression$1$string$1", "symbols": [{"literal":"f"}, {"literal":"a"}, {"literal":"l"}, {"literal":"s"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "booleanDefaultValue$subexpression$1", "symbols": ["booleanDefaultValue$subexpression$1$string$1"]},
     {"name": "booleanDefaultValue$subexpression$1$string$2", "symbols": [{"literal":"t"}, {"literal":"r"}, {"literal":"u"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "booleanDefaultValue$subexpression$1", "symbols": ["booleanDefaultValue$subexpression$1$string$2"]},
-    {"name": "booleanDefaultValue", "symbols": ["valueSign", "_", "booleanDefaultValue$subexpression$1"]},
+    {"name": "booleanDefaultValue", "symbols": ["valueSign", "booleanDefaultValue$subexpression$1"]},
     {"name": "date$string$1", "symbols": [{"literal":"d"}, {"literal":"a"}, {"literal":"t"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "date$ebnf$1$subexpression$1$string$1", "symbols": [{"literal":"N"}, {"literal":"O"}, {"literal":"W"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "date$ebnf$1$subexpression$1", "symbols": ["_", "valueSign", "_", "date$ebnf$1$subexpression$1$string$1"]},
@@ -189,13 +204,13 @@ var grammar = {
     {"name": "date$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "date", "symbols": ["date$string$1", "date$ebnf$1"]},
     {"name": "dateDefaultValue$string$1", "symbols": [{"literal":"N"}, {"literal":"O"}, {"literal":"W"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "dateDefaultValue", "symbols": ["valueSign", "_", "dateDefaultValue$string$1"]},
+    {"name": "dateDefaultValue", "symbols": ["valueSign", "dateDefaultValue$string$1"]},
     {"name": "url$string$1", "symbols": [{"literal":"u"}, {"literal":"r"}, {"literal":"l"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "url$ebnf$1$subexpression$1", "symbols": ["_", "urlDefaultValue"]},
     {"name": "url$ebnf$1", "symbols": ["url$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "url$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "url", "symbols": ["url$string$1", "url$ebnf$1"]},
-    {"name": "urlDefaultValue", "symbols": ["valueSign", "_", "urlFunction", {"literal":"("}, "identifier", {"literal":")"}]},
+    {"name": "urlDefaultValue", "symbols": ["valueSign", "urlFunction", {"literal":"("}, "identifier", {"literal":")"}]},
     {"name": "urlFunction$string$1", "symbols": [{"literal":"U"}, {"literal":"R"}, {"literal":"L"}, {"literal":"D"}, {"literal":"O"}, {"literal":"M"}, {"literal":"A"}, {"literal":"I"}, {"literal":"N"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "urlFunction", "symbols": ["urlFunction$string$1"]},
     {"name": "urlFunction$string$2", "symbols": [{"literal":"U"}, {"literal":"R"}, {"literal":"L"}, {"literal":"T"}, {"literal":"L"}, {"literal":"D"}], "postprocess": function joiner(d) {return d.join('');}},
@@ -215,7 +230,7 @@ var grammar = {
     {"name": "enum$ebnf$2", "symbols": ["enum$ebnf$2$subexpression$1"], "postprocess": id},
     {"name": "enum$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "enum", "symbols": ["enum$string$1", "_", "identifier", "enum$ebnf$1", "_", {"literal":")"}, "enum$ebnf$2"]},
-    {"name": "enumDefaultValue", "symbols": ["valueSign", "identifier"]},
+    {"name": "enumDefaultValue", "symbols": ["valueSign", "identifier"], "postprocess": defaultValue},
     {"name": "object$string$1", "symbols": [{"literal":"o"}, {"literal":"b"}, {"literal":"j"}, {"literal":"e"}, {"literal":"c"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "object", "symbols": ["object$string$1"], "postprocess": _ => { return {"#type": "object"}; }},
     {"name": "comment$ebnf$1", "symbols": []},
