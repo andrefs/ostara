@@ -9,7 +9,7 @@ rule             -> null
                   | field                       {% fst %}
                   | comment
                   | command
-field            -> _ fieldName fieldMetas:* {% f => { return {[f[1]]: Object.assign({}, ...f[2])}; } %}
+field            -> _ fieldName fieldMetas:* {% f => { return {[f[1]]: Object.assign({"#type":"string"}, ...f[2])}; } %}
 fieldMetas       -> _ fieldMeta     {% snd %}
 fieldMeta        -> ":" fieldType   {% snd %}
                   | isInternal      {% fst %}

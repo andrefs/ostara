@@ -143,7 +143,7 @@ var grammar = {
     {"name": "rule", "symbols": ["command"]},
     {"name": "field$ebnf$1", "symbols": []},
     {"name": "field$ebnf$1", "symbols": ["field$ebnf$1", "fieldMetas"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "field", "symbols": ["_", "fieldName", "field$ebnf$1"], "postprocess": f => { return {[f[1]]: Object.assign({}, ...f[2])}; }},
+    {"name": "field", "symbols": ["_", "fieldName", "field$ebnf$1"], "postprocess": f => { return {[f[1]]: Object.assign({"#type":"string"}, ...f[2])}; }},
     {"name": "fieldMetas", "symbols": ["_", "fieldMeta"], "postprocess": snd},
     {"name": "fieldMeta", "symbols": [{"literal":":"}, "fieldType"], "postprocess": snd},
     {"name": "fieldMeta", "symbols": ["isInternal"], "postprocess": fst},
