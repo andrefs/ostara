@@ -1,0 +1,19 @@
+Name
+Location
+    City
+    Country
+    FullAddress
+RecommendedBy
+Specialties *
+Notes
+isVisited
+PhoneNumbers
+Emails
+Websites
+PriceRange
+VisitHistory
+    Dishes
+    BillAmount
+CloseSchedule
+Type
+

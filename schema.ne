@@ -4,7 +4,7 @@
 
 model            -> rules                       {% fst %}
 rules            -> rule                        {% fst %}
-                  | rules nls rule              {% d => { return Object.assign({},d[0],d[2]); } %}
+                  | rules nl rule               {% d => { return Object.assign({},d[0],d[2]); } %}
 rule             -> null
                   | field                       {% fst %}
                   | comment
@@ -47,7 +47,7 @@ stringDefaultValue  -> valueSign string {% defaultValue %}
 boolean             -> "boolean" ( _ booleanDefaultValue {% snd %}):? {% fieldType %}
 booleanDefaultValue -> valueSign ( "false" | "true" )
 
-date                -> "date" ( _ valueSign _ "NOW"):?
+date                -> "date" ( _ valueSign _ "NOW"):? {% fieldType %}
 dateDefaultValue    -> valueSign "NOW"
 
 url                 -> "url" ( _ urlDefaultValue ):?

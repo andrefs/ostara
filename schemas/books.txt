@@ -1,0 +1,46 @@
+id
+number:integer
+authors +
+title
+subtitle ?
+publisher ?
+colection ?
+    title
+    number:integer ?
+dimensions ?
+    width:float ?
+    height:float ?
+    weight:float ?
+    pages:integer ?
+wishlist ?
+    date_added:date ?
+    comments ?
+foreign_edition ?
+    title
+    translators *
+    original_language
+reading_notes ?
+    first_reading_date:date ?
+    comments ?
+purchase ?
+    date:date ?
+    location ?
+    price:float
+    original_price:float ?
+    currency
+    conversion:float
+edition ?
+    date:date ?
+    number:integer ?
+    first_edition_date ?
+    first_edited_at ?
+    first_publication_date ?
+    first_publicated_at ?
+subjects *
+CBU ?
+ISBN ?
+isIncomplete:boolean ?
+observations ?
+regiter_date:date
+
+

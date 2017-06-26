@@ -1,0 +1,167 @@
+{
+    "id" : {
+        "#type"      : "integer",
+        "#required"  : true,
+        "#forbidden" : false
+    },
+    "number" : {
+        "#type"      : "integer",
+        "#required"  : true,
+        "#forbidden" : false,
+    },
+    "author" : {
+        "#type"      : "string",
+        "#required"  : true,
+        "#forbidden" : false
+    },
+    "title" : {
+        "#type"      : "string",
+        "#required"  : true,
+        "#forbidden" : false
+    },
+    "subtitle" : {
+        "#type"      : "string",
+        "#required"  : false,
+        "#forbidden" : false
+    },
+    "publisher" :{
+        "#type"      : "string",
+        "#required"  : true,
+        "#forbidden" : false
+    },
+    "colection" : {
+        "title " : {
+            "#type"      : "string",
+            "#required"  : false,
+            "#forbidden" : false
+        },
+        "number" : {
+            "#type"      : "integer",
+            "#required"  : false,
+            "#forbidden" : false
+        }
+        "#required"  : false,
+        "#forbidden" : false
+    },
+    "dimensions" : {
+        "width" : {
+            "#type" : "float",
+            "#required" : true,
+            "#forbidden" : false
+        },
+        "height" : {
+            "#type" : "float",
+            "#required" : true,
+            "#forbidden" : false
+        },
+        "weight" : {
+            "#type" : "float",
+            "#required" : false,
+            "#forbidden" : false
+        },
+        "pages" : {
+            "#type" : "integer",
+            "#required" : true,
+            "#forbidden" : false
+        },
+        "#required" : true,
+        "#forbidden" : false
+    },
+    "wishlist" : {
+        "date_added" : {
+            "#type" : "date",
+            "#required" : true,
+            "#forbidden" : false
+        },
+        "comments" : {
+            "#type" : "string",
+            "#required" : false,
+            "#forbidden" : false
+        },
+        "#required" : false,
+        "#forbidden" : false
+    },
+    "foreign_edition" : {
+        "title" : {
+            "#type" : "string",
+            "#required" : false,
+            "#forbidden" : false
+        },
+        "translator" : {
+            "#type" : "string",
+            "#required" : false,
+            "#forbidden" : false
+        },
+        "original_language" : {
+            "#type" : "string",
+            "#required" : true,
+            "#forbidden" : false
+        },
+        "#required" : false,
+        "#forbidden" : false
+    },
+    "reading_notes" : {
+        "first_reading_date" : {
+            "#type" : "date",
+            "#required" : false,
+            "#forbidden" : false
+        },
+        "comments" : {
+            "#type" : "string",
+            "#required" : false,
+            "#forbidden" : false
+        },
+        "#required" : false,
+        "#forbidden" : false
+    },
+    "purchase" : {
+        "date" : {
+            "#type" : "date",
+            "#required" : false,
+            "#forbidden" : false
+        },
+        "location" : {
+            "#type" : "string",
+            "#required" : false,
+            "#forbidden" : false
+        },
+        "price" : {
+            "#type" : "float",
+            "#required" : true,
+            "#forbidden" : false
+        },
+        "original_price" : {
+            "#type" : "float",
+            "#required" : true,
+            "#forbidden" : false
+        },
+        "currency" : {
+            "#type" : "string",
+            "#required" : true,
+            "#forbidden" : false
+        },
+        "conversion" : {
+            "#type" : "float",
+            "#required" : true,
+            "#forbidden" : false
+        },
+        "#required" : false,
+        "#forbidden" : false
+    },
+
+    observations          : string,
+    first_edition_date    : date,
+    first_edited_at       : string,
+    first_publishing_date : date,
+    first_published_at    : string,
+    edition_number        : integer,
+    subjects              : string,
+    edition_date          : date,
+    who_registered        : string,
+    register_date         : date,
+    CBU                   : string,
+    ISBN                  : string,
+    owner                 : string,
+    incomplete            : boolean,
+
+
