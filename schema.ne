@@ -4,12 +4,12 @@
 
 model            -> rules                       {% fst %}
 rules            -> rule                        {% fst %}
-                  | rules nl rule               {% d => { return Object.assign({},d[0],d[2]); } %}
+                  | rules nl rule               {% handleRules %}
 rule             -> null
                   | field                       {% fst %}
-                  | comment
-                  | command
-field            -> _ fieldName fieldMetas:* {% f => { return {[f[1]]: Object.assign({"#type":"string"}, ...f[2])}; } %}
+                  | comment                     {% returnNull %}
+                  | command                     {% handleCommand %}
+field            -> _ fieldName fieldMetas:* {% handleField %}
 fieldMetas       -> _ fieldMeta     {% snd %}
 fieldMeta        -> ":" fieldType   {% snd %}
                   | isInternal      {% fst %}
@@ -61,15 +61,15 @@ enumDefaultValue    -> valueSign identifier {% defaultValue %}
 
 object              -> "object" {% _ => { return {"#type": "object"}; } %}
 
-comment             -> "#" [^\n]:* {% _ => { return null; } %}
+comment             -> "#" [^\n]:* {% returnNull %}
 
 identifier          -> [_a-zA-Z] [_a-zA-Z0-9-]:* {% d => d[0] + d[1].join('') %}
 valueSign           -> "="
-_                   -> wschar:* {% function(d) {return null;} %}
-__                  -> wschar:+ {% function(d) {return null;} %}
-wschar              -> [ \t] {% id %}
-nls                 -> nl:+ {% function(d) {return null;} %}
-nl                  -> "\n" {% function(d) {return null;} %}
+_                   -> wschar:* {% returnNull %}
+__                  -> wschar:+ {% returnNull %}
+wschar              -> [ \t]    {% id %}
+nls                 -> nl:+     {% returnNull %}
+nl                  -> "\n"     {% returnNull %}
 
 
 @{%
@@ -88,6 +88,28 @@ nl                  -> "\n" {% function(d) {return null;} %}
 
   function fieldType(d){
     return Object.assign({"#type":d[0]}, d[1]);
+  }
+
+  function nestOrMergeRule(){
+  }
+
+  function handleField(f){
+    return {
+        [f[1]]: Object.assign({"#type":"string"}, ...f[2])
+    };
+  }
+
+  function handleRules(d) {
+    return Object.assign({},d[0],d[2]);
+  }
+
+  function returnNull() {
+    return null;
+  }
+
+  function handleCommand(c){
+    // TODO
+    return null;
   }
 
 %}

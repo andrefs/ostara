@@ -20,6 +20,28 @@ function id(x) {return x[0]; }
     return Object.assign({"#type":d[0]}, d[1]);
   }
 
+  function nestOrMergeRule(){
+  }
+
+  function handleField(f){
+    return {
+        [f[1]]: Object.assign({"#type":"string"}, ...f[2])
+    };
+  }
+
+  function handleRules(d) {
+    return Object.assign({},d[0],d[2]);
+  }
+
+  function returnNull() {
+    return null;
+  }
+
+  function handleCommand(c){
+    // TODO
+    return null;
+  }
+
 var grammar = {
     Lexer: undefined,
     ParserRules: [
@@ -136,14 +158,14 @@ var grammar = {
         },
     {"name": "model", "symbols": ["rules"], "postprocess": fst},
     {"name": "rules", "symbols": ["rule"], "postprocess": fst},
-    {"name": "rules", "symbols": ["rules", "nl", "rule"], "postprocess": d => { return Object.assign({},d[0],d[2]); }},
+    {"name": "rules", "symbols": ["rules", "nl", "rule"], "postprocess": handleRules},
     {"name": "rule", "symbols": []},
     {"name": "rule", "symbols": ["field"], "postprocess": fst},
-    {"name": "rule", "symbols": ["comment"]},
-    {"name": "rule", "symbols": ["command"]},
+    {"name": "rule", "symbols": ["comment"], "postprocess": returnNull},
+    {"name": "rule", "symbols": ["command"], "postprocess": handleCommand},
     {"name": "field$ebnf$1", "symbols": []},
     {"name": "field$ebnf$1", "symbols": ["field$ebnf$1", "fieldMetas"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "field", "symbols": ["_", "fieldName", "field$ebnf$1"], "postprocess": f => { return {[f[1]]: Object.assign({"#type":"string"}, ...f[2])}; }},
+    {"name": "field", "symbols": ["_", "fieldName", "field$ebnf$1"], "postprocess": handleField},
     {"name": "fieldMetas", "symbols": ["_", "fieldMeta"], "postprocess": snd},
     {"name": "fieldMeta", "symbols": [{"literal":":"}, "fieldType"], "postprocess": snd},
     {"name": "fieldMeta", "symbols": ["isInternal"], "postprocess": fst},
@@ -235,22 +257,22 @@ var grammar = {
     {"name": "object", "symbols": ["object$string$1"], "postprocess": _ => { return {"#type": "object"}; }},
     {"name": "comment$ebnf$1", "symbols": []},
     {"name": "comment$ebnf$1", "symbols": ["comment$ebnf$1", /[^\n]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "comment", "symbols": [{"literal":"#"}, "comment$ebnf$1"], "postprocess": _ => { return null; }},
+    {"name": "comment", "symbols": [{"literal":"#"}, "comment$ebnf$1"], "postprocess": returnNull},
     {"name": "identifier$ebnf$1", "symbols": []},
     {"name": "identifier$ebnf$1", "symbols": ["identifier$ebnf$1", /[_a-zA-Z0-9-]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "identifier", "symbols": [/[_a-zA-Z]/, "identifier$ebnf$1"], "postprocess": d => d[0] + d[1].join('')},
     {"name": "valueSign", "symbols": [{"literal":"="}]},
     {"name": "_$ebnf$1", "symbols": []},
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "_", "symbols": ["_$ebnf$1"], "postprocess": function(d) {return null;}},
+    {"name": "_", "symbols": ["_$ebnf$1"], "postprocess": returnNull},
     {"name": "__$ebnf$1", "symbols": ["wschar"]},
     {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": function(d) {return null;}},
+    {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": returnNull},
     {"name": "wschar", "symbols": [/[ \t]/], "postprocess": id},
     {"name": "nls$ebnf$1", "symbols": ["nl"]},
     {"name": "nls$ebnf$1", "symbols": ["nls$ebnf$1", "nl"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "nls", "symbols": ["nls$ebnf$1"], "postprocess": function(d) {return null;}},
-    {"name": "nl", "symbols": [{"literal":"\n"}], "postprocess": function(d) {return null;}}
+    {"name": "nls", "symbols": ["nls$ebnf$1"], "postprocess": returnNull},
+    {"name": "nl", "symbols": [{"literal":"\n"}], "postprocess": returnNull}
 ]
   , ParserStart: "model"
 }
